@@ -1,0 +1,59 @@
+{
+  "defaults": {
+    "font": {
+      "name": "resource/font/zhunyuan.ttf",
+      "size": 16
+    },
+    "colours": {
+      "normal_text": "#FFFFFF",
+      "hovered_text": "#FFFFFF",
+      "selected_text": "#FFFFFF",
+      "disabled_text": "#7F7F7F"
+    }
+  },
+  "UIButton": {
+    "colours": {
+      "normal_bg": "#333333",
+      "hovered_bg": "#555555",
+      "disabled_bg": "#222222",
+      "normal_text": "#FFFFFF",
+      "hovered_text": "#FFFFFF",
+      "disabled_text": "#7F7F7F"
+    }
+  },
+  "UIDropDownMenu": {
+    "colours": {
+      "normal_bg": "#333333",
+      "hovered_bg": "#555555",
+      "disabled_bg": "#222222",
+      "normal_text": "#FFFFFF",
+      "hovered_text": "#FFFFFF",
+      "disabled_text": "#7F7F7F"
+    }
+  },
+  "UITextEntryLine": {
+    "colours": {
+      "normal_bg": "#333333",
+      "hovered_bg": "#555555",
+      "disabled_bg": "#222222",
+      "normal_text": "#FFFFFF",
+      "hovered_text": "#FFFFFF",
+      "disabled_text": "#7F7F7F"
+    }
+  },
+  "UILabel": {
+    "colours": {
+      "normal_text": "#FFFFFF",
+      "hovered_text": "#FFFFFF",
+      "disabled_text": "#7F7F7F"
+    }
+  },
+  "UIWindow": {
+    "colours": {
+      "normal_bg": "#222222",
+      "hovered_bg": "#333333",
+      "title_bar_bg": "#444444",
+      "title_bar_text": "#FFFFFF"
+    }
+  }
+}

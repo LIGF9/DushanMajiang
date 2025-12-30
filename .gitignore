@@ -1,0 +1,56 @@
+# Python编译文件
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 构建产物
+build/
+dist/
+*.spec
+
+# 临时文件
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# 日志文件
+*.log
+*.log.*
+
+# 数据文件
+data/
+!.gitkeep
+
+dist/data/
+
+# IDE配置
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 测试报告
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+
+# 虚拟环境
+venv/
+env/
+*.venv/
+
+# 其他
+*.exe
+*.pkg
+*.zip
+*.rar
+
+# 打包过程生成的文件
+warn-*.txt
+xref-*.html
