@@ -1012,8 +1012,9 @@ class GameManager:
         """
         reason = []
         concealed_ji = sum([1 for t in player.get_concealed_hand() if self.check_chicken_tile(t)])
+        jin_ji = 2 if self.fanji_tile in ['9条','2条'] else 1
         if concealed_ji:
-            reason.append(f"[手牌幺鸡]+{concealed_ji}")
+            reason.append(f"[手牌幺鸡]+{concealed_ji*jin_ji}")
 
         return concealed_ji,reason
 
@@ -1112,7 +1113,8 @@ class GameManager:
             tuple: (暴露的鸡牌数量, 暴露鸡牌来源)
         """        
         majiang_scores = self.settings.majiang_scores
-        ji_type = majiang_scores['ji_type']
+        ji_type = majiang_scores['ji_type']        
+        jin_ji = 2 if self.fanji_tile in ['9条','2条'] else 1
         exposed_ji = 0
         reason = []
         # 传入了other_player，检查player与other_player的相对暴露牌鸡数
@@ -1121,16 +1123,16 @@ class GameManager:
                 if self.check_chicken_tile(g["tiles"][0]):
                     ji_num = ji_type[g['ji_tag']]
                     if g["is_gang"] and g['source'] == other_player.name:
-                        exposed_ji = 6 + ji_num
+                        exposed_ji = 3 + (3 + ji_num)*jin_ji
                         reason.append(f"杠[{g['ji_tag'].value}]+{exposed_ji}")
                     elif g["is_gang"]:
-                        exposed_ji = 7
+                        exposed_ji = 3 + 4*jin_ji
                         reason.append(f"杠[幺  鸡]+{exposed_ji}")
                     elif g['source'] == other_player.name:
-                        exposed_ji = 2 + ji_num
+                        exposed_ji = (2 + ji_num)*jin_ji
                         reason.append(f"碰[{g['ji_tag'].value}]+{exposed_ji}")
                     else:
-                        exposed_ji = 3
+                        exposed_ji = 3*jin_ji
                         reason.append(f"碰[幺  鸡]+{exposed_ji}")
             
         # 没有传入other_player，检查player的暴露牌鸡数,仅用在计算包鸡的个数
@@ -1139,10 +1141,10 @@ class GameManager:
                 if self.check_chicken_tile(g["tiles"][0]):
                     ji_num = ji_type[g['ji_tag']]
                     if g["is_gang"]:
-                        exposed_ji = 6 + ji_num
+                        exposed_ji = 3 + (3 + ji_num)*jin_ji
                         reason.append(f"杠[{g['ji_tag'].value}]({g['source']})+{exposed_ji}")
                     else:
-                        exposed_ji = 2 + ji_num
+                        exposed_ji = (2 + ji_num)*jin_ji
                         reason.append(f"碰[{g['ji_tag'].value}]({g['source']})+{exposed_ji}")
 
         # 检查玩家的打出的鸡牌得分
@@ -1152,8 +1154,11 @@ class GameManager:
         ji_type = majiang_scores['ji_type']
         for tag in player.tags:
             if tag['tag'] in Tags and tag['source'] == "self":
-                concealed_ji += ji_type[tag['tag']]
+                concealed_ji += ji_type[tag['tag']]*jin_ji
                 reason.append(f"[{tag['tag'].value}]+{ji_type[tag['tag']]}")
+        
+        if jin_ji==2:
+            reason = reason.append("(金鸡)")
 
         return exposed_ji+concealed_ji,reason
 

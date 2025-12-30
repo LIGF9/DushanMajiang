@@ -1736,8 +1736,11 @@ class MajiangGame:
             'draw_games': draw_games,
             'draw_rate': draw_rate,
             'hu_type': {tag.value: count for tag, count in self.game_manager.hu_type.items()},
+            'winners':[p.name for p in self.game_manager.winner],
             'is_draw': hasattr(self.game_manager, 'game_end_reason') and self.game_manager.game_end_reason == 'draw',  # 流局
             'game_end_img': self.ui_manager.game_end_img if hasattr(self.ui_manager, 'game_end_img') else [],
+            'fanji_tile':self.game_manager.fanji_tile,
+            'fanji_tiles':self.game_manager.fanji_tiles,
             'players': []
         }
 
@@ -1771,6 +1774,7 @@ class MajiangGame:
                 'avatar_path': avatar_path,
                 'ai_version': player.ai_version,
                 'is_human': player.is_human,
+                'is_winner':player in self.game_manager.winner,
                 'score': player.score,
                 'previous_score': player.previous_score,
                 'concealed_tiles': concealed_tiles,

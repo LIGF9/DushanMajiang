@@ -2862,9 +2862,9 @@ class UIManager:
             for img_path in game_end_img:
                 try:
                     result_img = pygame.image.load(img_path).convert_alpha()
-                    # 缩小为原始尺寸的0.9倍
-                    scaled_width = int(result_img.get_width() * 0.9)
-                    scaled_height = int(result_img.get_height() * 0.9)
+                    # 缩小为原始尺寸的0.91倍
+                    scaled_width = int(result_img.get_width() * 0.91)
+                    scaled_height = int(result_img.get_height() * 0.91)
                     result_img = pygame.transform.smoothscale(result_img, (scaled_width, scaled_height))
                     result_imgs.append(result_img)
                 except Exception as e:
@@ -2880,18 +2880,16 @@ class UIManager:
             for img in result_imgs:
                 self.screen.blit(img, (current_x, img_y))
                 current_x += img.get_width() + 20
-        
-        # 移除顶部局数信息，底部已显示
-        
+ 
         # 2. 绘制玩家信息和手牌
         players = game_data.get('players', [])
         
         # 设置初始位置和间距
-        start_x = 20
-        start_y = 100
+        start_x = 50
+        start_y = 120
         player_spacing = 130  # 玩家之间的垂直间距
-        avatar_size = (80, 80)  # 头像尺寸
-        tile_size = (50, 70)  # 牌尺寸
+        avatar_size = self.settings.avatar_size # 头像尺寸
+        tile_size = self.settings.tile_size  # 牌尺寸
         
         for i, player_data in enumerate(players):
             # 计算当前玩家的起始Y位置
@@ -3040,6 +3038,9 @@ class UIManager:
             if result.get('jiaopai', False):
                 ting_str = "已叫牌"
                 color = self.settings.yellow
+                if player_data.get('is_winner',False):
+                    ting_str = "大赢家"
+                    color = self.settings.green
             else:
                 ting_str = "未叫牌"
                 color = self.settings.red
@@ -3062,6 +3063,28 @@ class UIManager:
             tags_y = hand_start_y + tile_size[1] + 30
             self.screen.blit(tags_surface, (tags_x, tags_y))
         
+        if game_data.get('winners',[]):
+            fanji_type = "上下鸡" if self.settings.shangxia_ji else "下鸡"
+            jin_ji = True if game_data.get('fanji_tile','') in ['2条','9条'] else False
+            
+            fanji_str = f"翻鸡({fanji_type}): {' '.join([f'[{tile}]' for tile in game_data.get('fanji_tiles',[])])} {'(🐔金鸡🐔)' if jin_ji else ''}"
+            tags_surface = small_font.render(fanji_str, True, self.settings.yellow)
+            tags_x = start_x
+            tags_y = start_y + player_spacing*4-20
+            self.screen.blit(tags_surface, (tags_x, tags_y))
+
+            # tile_img = self.tiles[self.fanji_tile]
+            # scaled_img = pygame.transform.smoothscale(tile_img, self.settings.tile_size)
+            # x = start_x + self.settings.avatar_size[0] + 100
+            # self.screen.blit(scaled_img, (x, tags_y))
+
+        for i,tile in enumerate(game_data.get('fanji_tiles',[])):
+            if tile in self.tiles:
+                tile_img = self.tiles[tile]
+                scaled_img = pygame.transform.smoothscale(tile_img, self.settings.tile_size)
+                x = start_x + self.settings.avatar_size[0] + 150 + (i+1)*(self.settings.tile_size[0]+10)
+                self.screen.blit(scaled_img, (x, tags_y))
+
         # 3. 绘制当局游戏总述（右侧）
         # 严格仿造_draw_game_history的游戏卡片样式
         result_bg_path = os.path.join(self.resource_dir, 'table', 'result_right.png')
@@ -3102,7 +3125,7 @@ class UIManager:
         # 绘制排行榜标题
         current_y = card_y + 80
         
-        # 绘制玩家数据
+        # 绘制玩家数据：头像，名字，手牌
         if players:
             # 按积分排序
             sorted_players = sorted(players, key=lambda p: p.get('score', 0), reverse=True)
@@ -3173,12 +3196,10 @@ class UIManager:
                 total_button_width += button_width
         
         # 计算按钮之间的间距
-        total_buttons = len(buttons)
-        total_spacing_width = self.settings.win_w - total_button_width
-        button_spacing = total_spacing_width // (total_buttons + 1)
+        button_spacing = 20
         
         # 绘制按钮
-        current_x = button_spacing
+        current_x = self.settings.win_w - total_button_width -100 
         
         # 保存按钮区域，用于后续检测点击
         self._detail_buttons_rects = {}
@@ -3194,7 +3215,6 @@ class UIManager:
                 # 绘制普通按钮
                 enabled = button['enabled']
                 color = (0, 128, 0) if enabled else (128, 128, 128)
-                
                 button_rect = pygame.Rect(current_x, button_start_y, button_width, button_height)
                 pygame.draw.rect(self.screen, color, button_rect, border_radius=corner_radius)
                 
