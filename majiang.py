@@ -1792,7 +1792,7 @@ class MajiangGame:
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(game_result, f, ensure_ascii=False, indent=2)
 
-        print(f"本局游戏记录已保存到: {file_path}")
+        print(f"第{self.game_manager.total_games}游戏记录已保存到: {file_path}")
  
     def _save_game_history(self):
         """保存游戏记录到JSON文件

@@ -231,8 +231,8 @@ class GameManager:
         banker_index = self.players.index(self.banker)
         ordered_players = self.players[banker_index:] + self.players[:banker_index]
         self.current_player_index = self.players.index(self.banker) # 把庄家设置为当前玩家
-        print(f"庄家: {self.banker.name}")
-        print(f"轮次顺序: {' -> '.join([p.name for p in ordered_players])}")
+        self.cli_print(f"庄家: {self.banker.name}",'game_info')
+        self.cli_print(f"轮次顺序: {' -> '.join([p.name for p in ordered_players])}",'game_info')
 
         self.winner: List[Player] = []  #初始化赢家
         self.winner_check_indexes = []  # 检查胡牌玩家索引列表,处理多玩家胡牌场景检查
@@ -260,7 +260,7 @@ class GameManager:
         # 更新游戏状态为游戏开始
         self.is_game_over = False
         self.game_state = GameState.GAME_START
-        print("游戏开始！\n")
+        self.cli_print("游戏开始！\n",'game_info')
 
     def is_game_state(self, state: GameState):
         """检查当前游戏状态是否匹配
@@ -423,7 +423,7 @@ class GameManager:
                 elif default_passport:  #热炮/抢杠胡等默认通行证
                     winner.append(self.players.index(player))
                 else:
-                    print(f"❌ [{player.name}] 没有通行证，不能吃胡 [{tile}]({current_player.name})")
+                    self.cli_print(f"❌ [{player.name}] 没有通行证，不能吃胡 [{tile}]({current_player.name})",'game_info')
                     # 如果是人类玩家，显示toast提示，只显示一次
                     if player.is_human and not human_toast_shown:
                         self.toast_callback(f"{player.name} 没有通行证，不能吃胡 [{tile}]")
@@ -443,7 +443,7 @@ class GameManager:
         for player in self.players:
             if player != current_player and self.rule.can_gang_others(player.hand,tile) and len(self.majiang_tiles)>0:
                 if self.had_player_BAOJIAO(player):
-                    print(f"❌{player.name}已经报叫，不可以杠牌。")
+                    self.cli_print(f"❌{player.name}已经报叫，不可以杠牌。",'game_info')
                     return False,-1
                 else:
                     return True,self.players.index(player)
@@ -461,7 +461,7 @@ class GameManager:
         for player in self.players:
             if player != current_player and self.rule.can_peng(player.hand,tile):
                 if self.had_player_BAOJIAO(player):
-                    print(f"❌{player.name}已经报叫，不可以碰牌。")
+                    self.cli_print(f"❌{player.name}已经报叫，不可以碰牌。",'game_info')
                     return False,-1
                 else:
                     return True,self.players.index(player)
@@ -597,10 +597,10 @@ class GameManager:
         # 当前玩家==横鸡牌的开始玩家，也就是横鸡玩家再次出牌，即结束横鸡轮次
         if self.HENGJI_ROUND:
             if self.current_player_index == self.hengji_start_player_index:
-                print(f"[{current_player.name}] 再次出牌，结束 [横鸡轮次]")
+                self.cli_print(f"[{current_player.name}] 再次出牌，结束 [横鸡轮次]",'game_info')
                 self.HENGJI_ROUND = False
             elif self.current_player_index in self.hengji_player_indexes:
-                print(f"[{current_player.name}] 再次出牌，结束 [横鸡轮次]")
+                self.cli_print(f"[{current_player.name}] 再次出牌，结束 [横鸡轮次]",'game_info')
                 self.HENGJI_ROUND = False
 
         hot_flag = self.hot_tile and (self.hot_tile == discard_tile)
@@ -615,29 +615,29 @@ class GameManager:
             if not current_player.first_discard and not self.HENGJI_ROUND and not self.hengji_player_indexes:
                 self.hengji_player_indexes.append(self.current_player_index)
                 self.HENGJI_ROUND = True
-                print(f"[{current_player.name}] 首出横鸡，开启 [横鸡轮次]")
+                self.cli_print(f"[{current_player.name}] 首出横鸡，开启 [横鸡轮次]",'game_info')
             elif self.HENGJI_ROUND and self.current_player_index not in self.hengji_player_indexes:
                 self.hengji_player_indexes.append(self.current_player_index)
             JI_tag = self.check_chicken_tile_type(discard_tile,current_player.first_discard)
             tag = current_player.add_tag(JI_tag)
             source_info = f"({tag['source']})" if tag['source'] != "self" else ""
-            print(f"[{current_player.name}] {action} [{discard_tile}] {safe_flag} {reason}") 
-            print(f"[{current_player.name}] 获得 🏷️  [{JI_tag.value}🐔]{source_info}")
+            self.cli_print(f"[{current_player.name}] {action} [{discard_tile}] {safe_flag} {reason}",'discard') 
+            self.cli_print(f"[{current_player.name}] 获得 🏷️  [{JI_tag.value}🐔]{source_info}",'tag')
         else:
-            print(f"[{current_player.name}] {action} [{discard_tile}] {safe_flag} {reason}")
+            self.cli_print(f"[{current_player.name}] {action} [{discard_tile}] {safe_flag} {reason}",'discard')
 
         # 检查玩家是否听牌
         has_passport, win_types, win_tiles = self.rule.has_passport(current_player.hand,current_player.tags)
         ting_info = self.check_and_display_ting(current_player)
         if ting_info:
-            print(f"[{current_player.name}] ✅ 听  牌: {ting_info}")
+            self.cli_print(f"[{current_player.name}] ✅ 听  牌: {ting_info}",'game_info')
             current_player.ting_info = ting_info
             if has_passport:
-                print(f"[{current_player.name}] ✅ 通行证: {win_types}{' 可以胡：' if win_tiles else ''}{', '.join(win_tiles)}\n")
+                self.cli_print(f"[{current_player.name}] ✅ 通行证: {win_types}{' 可以胡：' if win_tiles else ''}{', '.join(win_tiles)}\n",'game_info')
             else:
-                print(f"[{current_player.name}] ❌ 通行证\n")
+                self.cli_print(f"[{current_player.name}] ❌ 通行证\n",'game_info')
         else:
-            print()
+            self.cli_print('','discard')
 
         #弃牌阶段退出前检查听牌、排序手牌，并失效玩家的第一次出牌
         current_player.sort_hand()
@@ -669,7 +669,7 @@ class GameManager:
         can_hu,hu_index = self.check_other_players_can_hu(current_player,tile,default_passport="抢杠检查")
         if can_hu and not self.reject_hu:
             hu_player = ",".join([self.players[i].name for i in hu_index])
-            print(f"[{hu_player}] 可胡 [{tile}]，但 [{gang_type_str}] 不可抢杠❌")
+            self.cli_print(f"[{hu_player}] 可胡 [{tile}]，但 [{gang_type_str}] 不可抢杠❌",'game_info')
             self.toast_callback(f"{current_player.name} 自杠，不可抢杠胡 [{tile}]")
         
         if gang_type == "exposed" and self.check_chicken_tile(tile):
@@ -681,10 +681,10 @@ class GameManager:
             last_player.change_tag_source(tag,current_player.name)
             # current_player.add_tag(tag,source)  ##20251211,碰鸡不加鸡标签，已经在gang_tile时group中添加tag信息
             # print(f"[{current_player.name}] 获得 🏷️  [{tag.value}🐔]{source_to_show}")
-            print(f"[{current_player.name}] {gang_type_str} [{tile}] {source_to_show}🀄")
-            print(f"[{last_player.name}] 获得 🏷️  [{Tag.ZE_REN_JI.value}🐔]({current_player.name})")            
+            self.cli_print(f"[{current_player.name}] {gang_type_str} [{tile}] {source_to_show}🀄",'gang')
+            self.cli_print(f"[{last_player.name}] 获得 🏷️  [{Tag.ZE_REN_JI.value}🐔]({current_player.name})",'tag')            
         else:
-            print(f"[{current_player.name}] {gang_type_str} [{tile}] {source_to_show}🀄")
+            self.cli_print(f"[{current_player.name}] {gang_type_str} [{tile}] {source_to_show}🀄",'gang')
 
         current_player.gang_tile(tile,source,gang_type,tag)
         self.change_game_state(GameState.DRAW_AFTER_GANG_PHASE)
@@ -810,17 +810,17 @@ class GameManager:
                 # 自摸
                 if self.get_remaining_tiles_count() != 0:
                     hu_player.add_tag(Tag.ZI_MO)
-                    print(f"[{hu_player.name}] 自摸！🎉 ")
+                    self.cli_print(f"[{hu_player.name}] 自摸！🎉 ",'game_result')
                     
                 # 妙手回春
                 else:
                     hu_player.add_tag(Tag.MIAO_SHOU_HUI_CHUN)
-                    print(f"[{hu_player.name}] 妙手回春！🎉🎉🎉 ")
+                    self.cli_print(f"[{hu_player.name}] 妙手回春！🎉🎉🎉 ",'game_result')
 
             # 第一张牌自摸就是天胡
             else:
                 hu_player.add_tag(Tag.TIAN_HU)
-                print(f"[{hu_player.name}] 天胡！🎉🎉🎉 ")
+                self.cli_print(f"[{hu_player.name}] 天胡！🎉🎉🎉 ",'game_result')
 
             hand = hu_player.hand.copy()
             hand['concealed'] = hand['concealed'][:-1]
@@ -837,13 +837,13 @@ class GameManager:
             # 点炮者的牌从弃牌中移除 20251212,移除的话牌桌上的指示器会指示空处，且不易看出哪张牌点炮
             # other_player.remove_discard_tile(hu_tile)
             # 处理多个赢家
-            print(f"[{other_player.name}] 打出 [{hu_tile}] 放炮！🔥")
+            self.cli_print(f"[{other_player.name}] 打出 [{hu_tile}] 放炮！🔥",'game_result')
             for index in hu_index:
                 hu_player:Player = players[index]                    
                 _,passs_port,_ = self.rule.has_passport(hu_player.hand,hu_player.tags)
                 if is_the_last_discard:
                     hu_player.add_tag(Tag.HAI_DI_LAO_YUE)
-                    print(f"🎉🎉🎉{hu_player.name} 海底捞月！🎉🎉🎉")
+                    self.cli_print(f"🎉🎉🎉{hu_player.name} 海底捞月！🎉🎉🎉",'game_result')
                     passs_port = passs_port + " 海底捞月"
 
                 if self.check_chicken_tile(hu_tile):
@@ -853,7 +853,7 @@ class GameManager:
                 for wt in win_type:
                     hu_player.add_tag(wt,source=other_player.name)
 
-                print(f"[{hu_player.name}] 捉炮！🎉 (通行证：{passs_port})")
+                self.cli_print(f"[{hu_player.name}] 捉炮！🎉 (通行证：{passs_port})",'game_result')
                 hu_player.add_tag(Tag.ZHUO_PAO,source=other_player.name)
                 hu_player.hu_tile(hu_tile)
                 other_player.add_tag(Tag.FANG_PAO,source=hu_player.name)
@@ -864,7 +864,7 @@ class GameManager:
             other_player:Player = self.players[tile_source_index]
             other_player.discard_tile(hu_tile)
             other_player.remove_discard_tile(hu_tile)
-            print(f"[{other_player.name}] 打出 [{hu_tile}] 被抢杠全烧！🔥 ")
+            self.cli_print(f"[{other_player.name}] 打出 [{hu_tile}] 被抢杠全烧！🔥 ",'game_result')
             # 处理赢牌玩家
             for index in hu_index:    
                 hu_player = self.players[index]
@@ -874,7 +874,7 @@ class GameManager:
                     hu_player.add_tag(wt,source=other_player.name)
 
                 hu_player.hu_tile(hu_tile)
-                print(f"[{hu_player.name}] 抢杠！🎉 ")
+                self.cli_print(f"[{hu_player.name}] 抢杠！🎉 ",'game_result')
                 hu_player.add_tag(Tag.QIANG_GANG_HU,source=other_player.name) # 记录抢杠胡玩家标签
                 self.winner.append(hu_player)
                 other_player.add_tag(Tag.JI_QUAN_SHAO,source=hu_player.name)  # 记录被抢杠玩家为鸡牌全烧
@@ -890,7 +890,7 @@ class GameManager:
 
             hu_player.add_tag(Tag.GANG_SAHNG_KAI_HUA) # 记录杠上开花玩家标签
             hu_player.hu_tile(hu_tile)
-            print(f"[{hu_player.name}] 杠上开花！🎉🎉🎉")
+            self.cli_print(f"[{hu_player.name}] 杠上开花！🎉🎉🎉",'game_result')
             self.winner.append(hu_player)
         
         # 处理热炮胡牌
@@ -899,7 +899,7 @@ class GameManager:
             # 热炮牌其实还未打出，这里要将点炮者的牌从手牌中移除
             other_player.discard_tile(hu_tile)
             # 处理赢牌玩家
-            print(f"[{other_player.name}] 打出 [{hu_tile}] 被热炮全烧！🔥 ")
+            self.cli_print(f"[{other_player.name}] 打出 [{hu_tile}] 被热炮全烧！🔥 ",'game_result')
             for index in hu_index:
                 hu_player = self.players[index]
 
@@ -908,7 +908,7 @@ class GameManager:
                     hu_player.add_tag(wt,source=other_player.name)
 
                 hu_player.add_tag(Tag.ZHUO_RE_PAO,source=other_player.name) # 记录热炮胡玩家标签
-                print(f"[{hu_player.name}] 捉热炮！🎉 ")
+                self.cli_print(f"[{hu_player.name}] 捉热炮！🎉 ",'game_result')
                 hu_player.hu_tile(hu_tile)
                 self.winner.append(hu_player)
                 other_player.add_tag(Tag.JI_QUAN_SHAO,source=hu_player.name)  # 记录放热炮玩家为鸡牌全烧
@@ -918,13 +918,13 @@ class GameManager:
         if hu_num==2:
             source = f"{self.winner[0].name}、{self.winner[1].name}"
             other_player.add_tag(Tag.ONE_TILE_DOUBLE_BOOM,source=source)  # 记录放炮玩家一炮双响
-            print(f"{other_player.name} 打出的 [{hu_tile}] [{Tag.ONE_TILE_DOUBLE_BOOM.value}]")
+            self.cli_print(f"{other_player.name} 打出的 [{hu_tile}] [{Tag.ONE_TILE_DOUBLE_BOOM.value}]",'game_result')
 
         # 检查是否一炮三响
         elif hu_num==3:
             source = f"{self.winner[0].name}、{self.winner[1].name}、{self.winner[2].name}"
             other_player.add_tag(Tag.ONE_TILE_TRIBLE_BOOM,source=source)  # 记录放炮玩家一炮三响
-            print(f"{other_player.name} 打出的 [{hu_tile}] [{Tag.ONE_TILE_TRIBLE_BOOM.value}]")
+            self.cli_print(f"{other_player.name} 打出的 [{hu_tile}] [{Tag.ONE_TILE_TRIBLE_BOOM.value}]",'gama_result')
 
         # 没人胡牌
         if hu_num==0:
@@ -1048,7 +1048,7 @@ class GameManager:
 
         #检查自摸胡牌标签和求人胡牌标签是否同时存在
         if self_hu_tag and qiuren_hu_tag:
-            print(f"⚠️ [{player.name}] 同时存在自摸胡牌标签和求人胡牌标签")
+            self.cli_print(f"⚠️ [{player.name}] 同时存在自摸胡牌标签和求人胡牌标签",'erro')
             raise ValueError("同时存在自摸胡牌标签和求人胡牌标签")
         
         #传入了other_player，检查player与other_player的相对胡牌标签
@@ -1215,6 +1215,15 @@ class GameManager:
                 return (0,0,0),([],[],[])
             else: #叫牌了，没有流局
                 total_ji = (hu_ji,gang_ji,concealed_ji+exposed_ji+fanji_ji)
+
+                if concealed_ji_reason==None:
+                    print(1,concealed_ji_reason)
+                if exposed_ji_reason==None:
+                    print(2,exposed_ji_reason)
+                    exposed_ji_reason = []
+                if fanji_ji_reason==None:
+                    print(3,fanji_ji_reason)
+
                 reason = (hu_ji_reason,gang_ji_reason,concealed_ji_reason+exposed_ji_reason+fanji_ji_reason)
                 return total_ji,reason
         
@@ -1268,7 +1277,7 @@ class GameManager:
             fanji_type = "上下鸡" if self.settings.shangxia_ji else "下鸡"
             self.fanji_tiles = self.get_fanji_tiles(self.fanji_tile)
             jin_ji = True if self.fanji_tile in ['2条','9条'] else False
-            print(f"翻鸡({fanji_type}): {' '.join([f'[{tile}]' for tile in self.fanji_tiles])} {'(🐔金鸡🐔)' if jin_ji else ''}")
+            self.cli_print(f"翻鸡({fanji_type}): {' '.join([f'[{tile}]' for tile in self.fanji_tiles])} {'(🐔金鸡🐔)' if jin_ji else ''}",'game_info')
         
         for player in players:
             #查叫
@@ -1353,13 +1362,13 @@ class GameManager:
                         self.hu_type[tag['tag']] += 1
                 _,winner_str = self.check_hu_ji(p)
                 winner_str_list.append(f"{p.name}  ( {', '.join(winner_str)} )")
-            print(f"\n游戏结束，🏆 赢家： {'  ，  '.join(winner_str_list)}")
+            self.cli_print(f"第{self.total_games}局游戏结束，🏆 赢家： {'  ，  '.join(winner_str_list)}",'game_result')
         
         #流局，输出流局信息
         else:
-            print(f"牌墙剩余数量: {len(self.majiang_tiles)}")
+            self.cli_print(f"牌墙剩余数量: {len(self.majiang_tiles)}",'game_result')
             self.change_current_player(self.last_player_index)
-            print("游戏结束，流局.....")
+            self.cli_print("第{self.total_games}局游戏结束，流局。",'game_result')
             
             # 播放流局结束音效
             if self.sound_callback:
@@ -1481,7 +1490,7 @@ class GameManager:
             if tile is None: 
                 self.change_game_state(GameState.GAME_OVER)
                 return
-            print(f"[{current_player.name}] 摸进 [{tile}]")
+            self.cli_print(f"[{current_player.name}] 摸进 [{tile}]",'draw')
             current_player.add_tile(tile)
             self.discard_tile = None
             
@@ -1550,7 +1559,7 @@ class GameManager:
             discard_tile = self.discard_tile
             if self.hot_tile and self.hot_tile == discard_tile:
                 if discard_tile not in current_player.hand["concealed"]:
-                    # print("DISCARD_TILE: 弃牌选择错误1 ")
+                    self.cli_print("DISCARD_TILE: 弃牌选择错误1 ",'erro')
                     self.reset_decision_request()
                     self.reset_decision_result()
                     return
@@ -1561,7 +1570,7 @@ class GameManager:
         elif self.have_decision_result():
             discard_tile = self.get_decision_result().tile
             if discard_tile not in current_player.hand["concealed"]:
-                # print("DISCARD_TILE: 弃牌选择错误2 ")
+                self.cli_print("DISCARD_TILE: 弃牌选择错误2 ",'erro')
                 self.reset_decision_request()
                 self.reset_decision_result()
                 return
@@ -1627,10 +1636,10 @@ class GameManager:
                     current_player.change_tag_source(tag,peng_player.name)
                     # peng_player.add_tag(tag,source)  #20251211,碰鸡不加鸡标签，已经在peng_tile时group中添加tag信息
                     # print(f"[{peng_player.name}] 获得 🏷️  [{tag.value}🐔]({source})")
-                    print(f"[{peng_player.name}] 碰了 [{tag.value}🐔] ({source})" )
-                    print(f"[{current_player.name}] 获得 🏷️  [{Tag.ZE_REN_JI.value}]({peng_player.name})")
+                    self.cli_print(f"[{peng_player.name}] 碰了 [{tag.value}🐔] ({source})",'peng')
+                    self.cli_print(f"[{current_player.name}] 获得 🏷️  [{Tag.ZE_REN_JI.value}]({peng_player.name})",'tag')
                 else:
-                    print(f"[{peng_player.name}] 碰了 [{discard_tile}]({source})")
+                    self.cli_print(f"[{peng_player.name}] 碰了 [{discard_tile}]({source})",'peng')
                 
                 # 播放碰牌音效
                 if self.sound_callback:
@@ -1670,7 +1679,7 @@ class GameManager:
             tile = self.gang_tile
             self.draw_tile = None
         else:
-            print("没有可以杠的牌")
+            self.cli_print("没有可以杠的牌",'erro')
             raise ValueError("没有可以杠的牌")
 
         hand = copy.deepcopy(current_player.hand)
@@ -1720,10 +1729,10 @@ class GameManager:
         else:
             tile = self._draw_tile()
             if tile is None:
-                print("❌杠牌后牌墙为空，无法摸牌")
+                self.cli_print("❌杠牌后牌墙为空，无法摸牌",'erro')
                 self.change_game_state(GameState.GAME_OVER)
                 return
-            print(f"[{current_player.name}] 摸进 [{tile}]")
+            self.cli_print(f"[{current_player.name}] 摸进 [{tile}]",'draw')
             self.draw_tile = tile
         if not tile:
             raise ValueError("杠牌后摸牌错误")
@@ -1783,7 +1792,7 @@ class GameManager:
         elif self.have_decision_result():
             hot_tile = self.get_decision_result().tile
             if hot_tile not in current_player.hand["concealed"]:
-                print(f"REPAO_PHASE:玩家选择的热炮牌1{hot_tile}不在手牌中")
+                self.cli_print(f"REPAO_PHASE:玩家选择的热炮牌1{hot_tile}不在手牌中","erro")
                 self.hot_tile = None
                 self.reset_decision_request()
                 self.reset_decision_result()
@@ -1794,10 +1803,10 @@ class GameManager:
             raise ValueError("热炮牌赋值错误")
         
         if not hot_tile or hot_tile not in current_player.hand["concealed"]:
-            print(f"REPAO_PHASE:玩家选择的热炮牌2{hot_tile}不在手牌中")
+            self.cli_print(f"REPAO_PHASE:玩家选择的热炮牌2{hot_tile}不在手牌中",'erro')
             current_player.print_hand()
-            print("请求如下：",self.decision_request)
-            print("响应如下：",self.decision_result)
+            self.cli_print("请求如下：",self.decision_request,'erro')
+            self.cli_print("响应如下：",self.decision_result,'erro')
             self.hot_tile = None
             self.reset_decision_request()
             self.reset_decision_result()
@@ -1821,7 +1830,9 @@ class GameManager:
             self.change_game_state(GameState.DISCARD_TILE_PHASE)
             return
 
-
+    def cli_print(self,str,source):
+        if self.settings.cli_print.get(source,True):
+            print(str)
 
 
 

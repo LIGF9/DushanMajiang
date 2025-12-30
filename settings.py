@@ -40,6 +40,7 @@ class Settings(object):
     auto_restart_time = -1  # 超时自动再来一局的时间（秒）
     test_round = 10  # 测试轮数/自动再来一局自动点击次数
     speed_up = False  # 是否加速游戏(采集对局数据模式)，即减少思考时间/自动重开时间/toast显示时间等
+    cli_print = {'draw':False,'discard':False,'peng':False,'gang':False,'tag':False,'erro':False,'game_result':False,'game_info':False}
     mode_easy = [0,1,0]
     mode_normal = [1,0,1]
     mode_hard = [1,1,1]
