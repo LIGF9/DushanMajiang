@@ -661,7 +661,7 @@ class MajiangAI0:
             (是否胡牌, 推荐理由)：(True/False, "推荐理由")
         """
         
-        return True, f"simpleAI 推荐胡牌"
+        return True, f"推荐胡牌"
 
     def _get_all_used_tiles(self, hand, all_discards, all_exposed):
         """获取所有已使用的牌"""
@@ -1544,7 +1544,7 @@ class MajiangAI1:
         返回：
             (是否碰牌, 推荐理由)：(True/False, "推荐理由")
         """
-        return True, "simpleAI 推荐碰牌"
+        return True, "推荐碰牌"
 
     def decide_gang(self,
             hand,
@@ -1564,7 +1564,7 @@ class MajiangAI1:
             (是否杠牌, 推荐理由)：(True/False, "推荐理由")
         """
         
-        return True, "simpleAI 推荐杠牌"
+        return True, "推荐杠牌"
 
     def decide_hu(self,
             hand,
@@ -1584,7 +1584,7 @@ class MajiangAI1:
             (是否胡牌, 推荐理由)：(True/False, "推荐理由")
         """
         
-        return True, f"simpleAI 推荐胡牌"
+        return True, f"推荐胡牌"
 
     def _get_all_used_tiles(self, hand, all_discards, all_exposed):
         """获取所有已使用的牌"""

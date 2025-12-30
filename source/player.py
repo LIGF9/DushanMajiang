@@ -252,7 +252,8 @@ class Player:
                                 group['action_type'] = 'gang'
                                 group['gang_type'] = 'added'
                                 group['ji_tag'] = ji_tag
-                                group['source'] = "self"
+                                if not tile in Settings.chicken_tile:
+                                    group['source'] = "self"
                                 return True
                             else:
                                 print(f"警告: {self.name}的隐藏手牌中没有牌 {tile} 用于补杠")

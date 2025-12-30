@@ -585,6 +585,17 @@ class Rule:
         """
         return Settings.chicken_tile
 
+    def check_chicken_tile(self, tile: str) -> bool:
+        """检查牌是否为幺鸡牌
+        
+        Args:
+            tile (str): 待检查的牌
+        
+        Returns:
+            bool: 如果牌为幺鸡牌则返回True，否则返回False
+        """
+        return tile in self.get_chicken_tiles()
+
 if __name__ == "__main__":
     rule=Rule()
     rule.test_hu()

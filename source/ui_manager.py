@@ -1822,7 +1822,7 @@ class UIManager:
                     ting_str = "大赢家"
                     color = self.settings.green
             else:
-                ting_str = "未叫牌"
+                ting_str = "米叫牌"
                 color = self.settings.red
 
             tags_font = pygame.font.Font(self.settings.font_path, self.settings.small_font_size)
@@ -2886,11 +2886,12 @@ class UIManager:
         
         # 设置初始位置和间距
         start_x = 50
-        start_y = 120
+        start_y = 100
         player_spacing = 130  # 玩家之间的垂直间距
         avatar_size = self.settings.avatar_size # 头像尺寸
         tile_size = self.settings.tile_size  # 牌尺寸
         
+        # 绘制玩家数据：头像、名字、手牌
         for i, player_data in enumerate(players):
             # 计算当前玩家的起始Y位置
             current_y = start_y + i * player_spacing
@@ -2942,8 +2943,8 @@ class UIManager:
             
             # 2.2 绘制名字（头像下方）
             name = player_data.get('name', f'玩家{i+1}')
-            color = self.settings.blue if player_data.get('is_human', False) else self.settings.white
-            name_surface = normal_font.render(name, True, color)
+            name = (name+'(玩家)') if player_data.get('is_human', False) else name
+            name_surface = normal_font.render(name, True, self.settings.white)
             name_x = avatar_x + (avatar_size[0] - name_surface.get_width()) // 2
             name_y = avatar_y + avatar_size[1] + 5
             self.screen.blit(name_surface, (name_x, name_y))
@@ -2953,10 +2954,14 @@ class UIManager:
             hand_start_y = current_y
             
             # 绘制暴露牌（优先使用牌面图片）
-            current_x = hand_start_x
+            current_x = hand_start_x-5
             exposed_tiles = player_data.get('exposed_tiles', [])
+            previous_tile = ''
             for tile in exposed_tiles:
                 tile_key = str(tile).strip()
+                if previous_tile != tile:
+                    current_x += 5                
+                previous_tile = tile
                 # 处理可能带有后缀的情形
                 if tile_key.endswith('.png'):
                     tile_key = tile_key[:-4]
@@ -2986,7 +2991,7 @@ class UIManager:
                     tile_img.blit(tile_text, (text_x, text_y))
                     self.screen.blit(tile_img, (current_x, hand_start_y))
 
-                current_x += tile_size[0] - 1  # 牌之间的距离2像素
+                current_x += tile_size[0]
             
             # 暴露牌和隐藏牌之间间隔10像素
             if exposed_tiles:
@@ -3030,7 +3035,7 @@ class UIManager:
                         tile_img.fill((128, 128, 128))
                         self.screen.blit(tile_img, (current_x, hand_start_y))
 
-                current_x += tile_size[0] -1  # 牌之间的距离2像素
+                current_x += tile_size[0]
             
             # 2.4 绘制标签（第三行）
             tags = player_data.get('tags', [])
@@ -3042,7 +3047,7 @@ class UIManager:
                     ting_str = "大赢家"
                     color = self.settings.green
             else:
-                ting_str = "未叫牌"
+                ting_str = "米叫牌"
                 color = self.settings.red
 
             tags_surface = small_font.render(ting_str, True, color)
@@ -3063,6 +3068,7 @@ class UIManager:
             tags_y = hand_start_y + tile_size[1] + 30
             self.screen.blit(tags_surface, (tags_x, tags_y))
         
+        # 绘制翻鸡牌文字
         if game_data.get('winners',[]):
             fanji_type = "上下鸡" if self.settings.shangxia_ji else "下鸡"
             jin_ji = True if game_data.get('fanji_tile','') in ['2条','9条'] else False
@@ -3070,7 +3076,7 @@ class UIManager:
             fanji_str = f"翻鸡({fanji_type}): {' '.join([f'[{tile}]' for tile in game_data.get('fanji_tiles',[])])} {'(🐔金鸡🐔)' if jin_ji else ''}"
             tags_surface = small_font.render(fanji_str, True, self.settings.yellow)
             tags_x = start_x
-            tags_y = start_y + player_spacing*4-20
+            tags_y = start_y + player_spacing*4
             self.screen.blit(tags_surface, (tags_x, tags_y))
 
             # tile_img = self.tiles[self.fanji_tile]
@@ -3078,6 +3084,7 @@ class UIManager:
             # x = start_x + self.settings.avatar_size[0] + 100
             # self.screen.blit(scaled_img, (x, tags_y))
 
+        # 绘制翻鸡牌图片
         for i,tile in enumerate(game_data.get('fanji_tiles',[])):
             if tile in self.tiles:
                 tile_img = self.tiles[tile]
@@ -3125,7 +3132,7 @@ class UIManager:
         # 绘制排行榜标题
         current_y = card_y + 80
         
-        # 绘制玩家数据：头像，名字，手牌
+        # 绘制玩家数据：积分排序
         if players:
             # 按积分排序
             sorted_players = sorted(players, key=lambda p: p.get('score', 0), reverse=True)
@@ -3151,7 +3158,7 @@ class UIManager:
                 for r in count_with_other_player:
                     source = r.get('source', '')
                     length = 35
-                    r_x = card_x + 30
+                    r_x = card_x + 25
                     if not source:
                         break
                     for i in range(3):
