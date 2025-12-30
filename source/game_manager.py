@@ -222,6 +222,8 @@ class GameManager:
         self.discard_tile = None  # 当前弃牌的牌
         self.gang_tile = None  # 当前杠牌的牌
         self.hot_tile = None  # 当前热炮牌
+        self.fanji_tile = ""  # 翻鸡牌
+        self.fanji_tiles = []  # 翻鸡牌
 
         # 选择庄家：上局赢家或随机选择
         self.banker = self.players[random.randint(0, len(self.players) - 1)] if not self.winner else self.winner[0]
