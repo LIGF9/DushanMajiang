@@ -31,6 +31,7 @@ class Player:
         self.time_limit = 10  # 玩家决策时间限制，单位秒
         self.ting_info = "暂未叫牌"  # 叫牌信息
         self.hu_type = {}  # 胡牌类型统计
+        self.jiaopai = False
         
         # 手牌对象，包含隐藏牌和明牌
         self.hand = {
@@ -370,6 +371,7 @@ class Player:
             print(f"\n玩家标签:")
             for tag in self.tags:
                 print(f"  - {tag['tag'].value}" + (f"({tag['source']})" if tag['source'] != 'self' else ""))
+        print()
         print("="*40)
 
     def print_result(self):

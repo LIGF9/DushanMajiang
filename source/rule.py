@@ -58,7 +58,7 @@ class Rule:
         """检查玩家是否有杠"""
         return any(len(group["tiles"]) == 4 for group in hand["exposed"])
 
-    def has_passport(self,hand,tags:List[Tag]=[]) -> Tuple[bool, str, List[str]]:
+    def has_passport(self,hand,tags:List[Tag]=[]) -> Tuple[bool, str]:
         """
         检查玩家是否有通行证：
         1. 报叫
@@ -66,31 +66,36 @@ class Rule:
         3. 听牌且听的牌型不是小平胡（若手牌可胡大牌也可胡小平胡，则胡小平胡时不能获得通行证）
         返回：(bool, reason, win_tiles)
             bool: 是否有通行证
-            reason: 获得原因，如"有杠牌"/"听非小平胡"/""
-            win_tiles: 可胡的牌列表（仅听牌时返回，否则空列表）
+            reason: 获得原因，如"有杠牌"/"听非平胡"/""
         """
 
-        def handle_ting_info(ting_info):            
-            # 收集所有可胡的牌及对应牌型
-            win_tiles = []
-            win_types = set()
-            for win_type, tile, _ in ting_info:
-                # 处理win_type为列表的情况
-                win_type_str = "".join([wt.value for wt in win_type])
-                # 若该牌可胡大牌（非小平胡），则加入可胡列表
-                if win_type_str != Tag.PING_HU.value:
-                    win_tiles.append(tile)
-                    win_types.add(win_type_str)
-            return win_tiles, win_types
+        def handle_ting_info(ting_tiles):
+            if ting_tiles:
+                # 按听牌类型分组
+                ting_by_type = {}
+                for win_type, tile, remaining in ting_tiles:
+                    # 排除平胡
+                    win_type = [t.value for t in win_type if t!=Tag.PING_HU]
+                    if not win_type:
+                        break
+
+                    win_type_str = ''.join(win_type)
+                    if win_type_str not in ting_by_type:
+                        ting_by_type[win_type_str] = f"[{tile}]剩{remaining}张"
+                    else:
+                        ting_by_type[win_type_str] += f"，[{tile}]剩{remaining}张"
+                
+                # 格式化每种听牌类型的信息
+                ting_info = []
+                for win_type, tiles_info in ting_by_type.items():
+                    ting_info.append(f"{win_type}({tiles_info})")
+
+                return "，".join(ting_info)
 
 
         # 1.报叫
-        if Tag.BAO_JIAO in tags:
-            is_ting, ting_info = self.check_ting(hand, [])
-            if is_ting:
-                win_tiles, win_types  = handle_ting_info(ting_info)
-                if win_tiles:
-                    return True, "报叫".join(sorted(win_types)) , win_tiles
+        if any(t['tag'] == Tag.BAO_JIAO for t in tags):
+            return True, "报叫"
 
         # 2. 有杠牌，细化杠类型
         gang_reasons = []
@@ -99,16 +104,16 @@ class Rule:
                 tile = group["tiles"][0]
                 gang_reasons.append(f"杠{tile}")
         if gang_reasons:
-            return True, "，".join(gang_reasons), []
+            return True, "，".join(gang_reasons)
 
         # 3. 听牌且听的牌型不是小平胡，细化胡牌类型
         is_ting, ting_info = self.check_ting(hand, [])
         if is_ting:
-            win_tiles, win_types = handle_ting_info(ting_info)
-            if win_tiles:
-                return True, "听".join(sorted(win_types)) , win_tiles
+            ting_str = handle_ting_info(ting_info)
+            if ting_str:
+                return True, ting_str
 
-        return False, "", []
+        return False, ""
 
     def check_hu(self, hand, tile: str) -> Tuple[bool, List[Tag]]:
         """

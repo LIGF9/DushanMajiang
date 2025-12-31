@@ -7,7 +7,7 @@ class Settings(object):
     game_name = 'Dushan Majiang 2025'
     test_mode = False  # 是否测试模式
     # show_all_faces = True  # 是否显示所有牌
-    # test_mode = True  # 是否测试模式
+    test_mode = True  # 是否测试模式
     show_all_faces = False  # 是否显示所有牌
     win_w = 1280
     win_h = 720
@@ -40,7 +40,8 @@ class Settings(object):
     auto_restart_time = -1  # 超时自动再来一局的时间（秒）
     test_round = 10  # 测试轮数/自动再来一局自动点击次数
     speed_up = False  # 是否加速游戏(采集对局数据模式)，即减少思考时间/自动重开时间/toast显示时间等
-    cli_print = {'draw':False,'discard':False,'peng':False,'gang':False,'tag':False,'erro':False,'game_result':False,'game_info':False}
+    cli_print = {'draw':True,'discard':True,'peng':True,'gang':True,'tag':False,'erro':True,'game_result':True,'game_info':True}
+    # cli_print = {'draw':True,'discard':True,'peng':True,'gang':True,'tag':True,'erro':True,'game_result':True,'game_info':True}
     mode_easy = [0,1,0]
     mode_normal = [1,0,1]
     mode_hard = [1,1,1]
@@ -54,6 +55,7 @@ class Settings(object):
     majiang_scores = {
         "self_hu": {
             Tag.ZI_MO: 3,# 自摸
+            Tag.TIAN_HU: 23,#天胡
             Tag.GANG_SAHNG_KAI_HUA: 3,# 杠上开花
             Tag.MIAO_SHOU_HUI_CHUN: 3,# 妙手回春
         },
@@ -63,8 +65,7 @@ class Settings(object):
             Tag.QIANG_GANG_HU: 3,#抢杠胡
             Tag.HAI_DI_LAO_YUE: 3,#海底捞月
         },
-        "hu_type": {                
-            Tag.TIAN_HU: 20,#天胡
+        "hu_type": {
             Tag.BAO_JIAO: 10,#报叫
             Tag.LONG_QI_DUI: 23,#龙七对
             Tag.QING_YI_SE: 10,#清一色
