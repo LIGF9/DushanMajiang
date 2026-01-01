@@ -925,8 +925,9 @@ class GameManager:
         elif hu_type == Tag.GANG_SAHNG_KAI_HUA:
             
             hu_player = self.get_players()[hu_index[0]]
-
-            _,win_type = self.rule.check_hu(hu_player.hand,hu_tile)
+            hand = copy.deepcopy(hu_player.hand)
+            hand['concealed'] = hand['concealed'][:-1]
+            _,win_type = self.rule.check_hu(hand,hu_tile)
             for wt in win_type:
                 hu_player.add_tag(wt)
 

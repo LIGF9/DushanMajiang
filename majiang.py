@@ -1959,9 +1959,8 @@ class MajiangGame:
                 # 历史对局详情页面状态
                 self.ui_manager._draw_game_history_detail()
             
-            # 无论当前屏幕是什么状态，只要游戏在运行且设置中打开了背景音乐，就确保音乐在播放
-            if self.settings.bg_music_play:
-                self.sound_manager.play_bg_music()
+            # 无论当前屏幕是什么状态，都调用play_bg_music()方法，让它内部的逻辑来处理是否播放或停止音乐
+            self.sound_manager.play_bg_music()
             
             # 3. 控制帧率
             self.clock.tick(self.settings.fps)
