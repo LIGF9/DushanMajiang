@@ -368,6 +368,7 @@ class UIManager:
         Args:
             remaining_count: 剩余牌数
         """
+        self.remaining_count = remaining_count
         if remaining_count < 0:
             remaining_count = 0
             
@@ -1857,7 +1858,7 @@ class UIManager:
                 self.screen.blit(tags_surface, (tags_x, tags_y))
         
         # 绘制翻鸡牌
-        if winners:
+        if winners and self.remaining_count > 0:
             fanji_type = "上下鸡" if self.settings.shangxia_ji else "下鸡"
             jin_ji = True if self.fanji_tile in ['2条','9条'] else False
             

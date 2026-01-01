@@ -7,7 +7,7 @@ class Settings(object):
     game_name = 'Dushan Majiang 2025'
     test_mode = False  # 是否测试模式
     # show_all_faces = True  # 是否显示所有牌
-    test_mode = True  # 是否测试模式
+    # test_mode = True  # 是否测试模式
     show_all_faces = False  # 是否显示所有牌
     win_w = 1280
     win_h = 720
@@ -16,8 +16,8 @@ class Settings(object):
     icon_img = get_resource_path('resource/icon.png')
     tile_indicator_color = "red"  # 牌面指示器颜色:黄绿红
     bg_music_play = True  # 是否播放背景音乐
-    game_sound_play = False   # 是否播放游戏音效
-    card_sound_play = False  # 是否播放打牌读牌音效  
+    game_sound_play = True   # 是否播放游戏音效
+    card_sound_play = True  # 是否播放打牌读牌音效  
     bg_music_volume = 0.5  # 背景音乐音量 (0.0-1.0)
     game_sound_volume = 1.0  # 游戏音效音量 (0.0-1.0)
     card_sound_volume = 0.8  # 打牌读牌音效音量 (0.0-2.0)
@@ -40,8 +40,8 @@ class Settings(object):
     auto_restart_time = -1  # 超时自动再来一局的时间（秒）
     test_round = 10  # 测试轮数/自动再来一局自动点击次数
     speed_up = False  # 是否加速游戏(采集对局数据模式)，即减少思考时间/自动重开时间/toast显示时间等
-    cli_print = {'draw':True,'discard':True,'peng':True,'gang':True,'tag':False,'erro':True,'game_result':True,'game_info':True}
     # cli_print = {'draw':True,'discard':True,'peng':True,'gang':True,'tag':True,'erro':True,'game_result':True,'game_info':True}
+    cli_print = {'draw':False,'discard':False,'peng':False,'gang':False,'tag':False,'erro':True,'game_result':False,'game_info':False}
     mode_easy = [0,1,0]
     mode_normal = [1,0,1]
     mode_hard = [1,1,1]
@@ -81,8 +81,8 @@ class Settings(object):
         },
         "other_tag": {
             Tag.GANG: 3,#杠
-            Tag.FANG_RE_PAO: -3,#放热炮
-            Tag.FANG_PAO: -3,#放炮
+            Tag.FANG_RE_PAO: 0,#放热炮
+            Tag.FANG_PAO: 0,#放炮
         }
     }
 

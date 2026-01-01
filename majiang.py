@@ -597,7 +597,7 @@ class MajiangGame:
         # 给uimanager传递指示牌的关键信息
         self.ui_manager.current_player = current_player
         self.ui_manager.last_player = last_player
-        self.ui_manager.discard_tile = self.game_manager.discard_tile
+        self.ui_manager.discard_tile = self.game_manager.indicator_discard_tile
         current_tiles = current_player.get_discard_tiles()
         last_tiles = last_player.get_discard_tiles()
         if current_tiles or last_tiles:
@@ -617,8 +617,8 @@ class MajiangGame:
             recommend_tile_index = human.get_recommend_tile_index()
             if recommend_tile_index >= 0:
                 self.ui_manager.float_tile_list = [recommend_tile_index]
-            else:
-                self.ui_manager.float_tile_list = [len(concealed)-1]
+            # else:
+            #     self.ui_manager.float_tile_list = [len(concealed)-1]
         
         # 检查是否从人类玩家回合切走
         elif turn_switch_from_human:
