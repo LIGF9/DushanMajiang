@@ -139,17 +139,17 @@ class MajiangGame:
             {'name': 'human', 'type': 'dropdown', 'label': '人类玩家名称', 'options': self.settings.players_boy + self.settings.players_girl},
             {'name': 'game_mode', 'type': 'dropdown', 'label': '游戏模式', 'options': ['简单', '中等', '困难']},
             {'name': 'auto_restart_time', 'type': 'number', 'label': '默认再来一局计时(秒)'},
-            {'name': 'test_mode', 'type': 'bool', 'label': '测试模式'},
             {'name': 'show_all_faces', 'type': 'bool', 'label': '显示所有牌面'},
+            {'name': 'speed_up', 'type': 'bool', 'label': '游戏加速模式'},
+            # {'name': 'test_mode', 'type': 'bool', 'label': '测试模式'},
             {'name': 'show_name', 'type': 'bool', 'label': '是否显示玩家名称'},
-            {'name': 'show_ai_version', 'type': 'bool', 'label': '是否显示AI玩家版本号'},
+            {'name': 'show_ai_version', 'type': 'bool', 'label': '是否显示玩家AI版本号'},
             {'name': 'bg_music_play', 'type': 'bool', 'label': '播放背景音乐', 'has_volume': True},
             {'name': 'bg_music_volume', 'type': 'volume', 'label': '', 'parent': 'bg_music_play', 'min': 0, 'max': 1},
             {'name': 'game_sound_play', 'type': 'bool', 'label': '播放游戏音效', 'has_volume': True},
             {'name': 'game_sound_volume', 'type': 'volume', 'label': '', 'parent': 'game_sound_play', 'min': 0, 'max': 2},
             {'name': 'card_sound_play', 'type': 'bool', 'label': '播放打牌读牌音效', 'has_volume': True},
             {'name': 'card_sound_volume', 'type': 'volume', 'label': '', 'parent': 'card_sound_play', 'min': 0, 'max': 2},
-            {'name': 'speed_up', 'type': 'bool', 'label': '游戏加速模式'}
         ]
   
     def _draw_main_menu(self):
@@ -1209,7 +1209,7 @@ class MajiangGame:
             # 检查是否有对局数据
             if (name_changed or game_mode_changed) and self.game_manager.total_games > 0:
                 # 1. 保存当前对局数据
-                self.ui_manager._save_game_history()
+                self._save_game_history()
                 
                 # 2. 重新创建时间戳文件夹
                 import os

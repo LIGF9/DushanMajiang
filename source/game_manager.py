@@ -69,12 +69,23 @@ class GameManager:
 
     def initialize_manager(self):
         """初始化游戏管理器、玩家列表"""
-        # 检查当前人类玩家名字是否与上次相同，如果相同则不需要重新初始化
-        if self.players:  # 如果已有玩家，检查人类玩家名字是否相同
+        # 检查当前人类玩家名字和游戏模式是否与上次相同，如果相同则不需要重新初始化
+        if self.players:  # 如果已有玩家，检查人类玩家名字和游戏模式是否相同
             # 获取当前人类玩家
             current_human = next((p for p in self.players if p.is_human), None)
-            if current_human and current_human.name == self.settings.human:  # 如果人类玩家名字未变，跳过初始化
-                return
+            if current_human and current_human.name == self.settings.human:  # 如果人类玩家名字未变，检查游戏模式
+                # 检查游戏模式是否改变
+                # 获取当前AI玩家的AI版本列表
+                current_ai_versions = []
+                for p in self.players:
+                    if not p.is_human:
+                        # 从AI版本字符串中提取版本号，例如 "AI-1" -> "1"
+                        version_str = p.ai_version.split("-")[-1]
+                        current_ai_versions.append(int(version_str))
+                
+                # 检查当前AI版本列表是否与设置中的opponent_ai_version_list相同
+                if current_ai_versions == self.settings.opponent_ai_version_list:
+                    return
         
         # 新建玩家列表
         # 1. 创建人类玩家（东家）
@@ -1246,6 +1257,8 @@ class GameManager:
                 exposed_ji = 0
                 exposed_ji_reason = []
                 return (0,0,0),([],[],[f"[{Tag.JI_QUAN_SHAO.value}]"])
+            concealed_ji_reason = [] if not concealed_ji_reason else concealed_ji_reason
+            exposed_ji_reason = [] if not exposed_ji_reason else exposed_ji_reason
             ji = exposed_ji+concealed_ji
             ji_reason = concealed_ji_reason+exposed_ji_reason+[f"[{Tag.JI_QUAN_SHAO.value}]-{ji}"]
             gang_ji_reason += [f"[{Tag.JI_QUAN_SHAO.value}]-{gang_ji}"]
@@ -1812,6 +1825,7 @@ class GameManager:
             raise ValueError("杠牌后摸牌错误")
 
         hand = copy.deepcopy(current_player.hand)
+        hand['concealed'] = hand['concealed'][:-1]
         can_hu,_ = self.rule.check_hu(hand,tile)
         can_gang = (self.rule.can_add_gang(hand,tile) or self.rule.can_self_gang(hand,tile)) and len(self.majiang_tiles)>0
         decision_list = self.get_decision_list(can_hu,can_gang,False)
@@ -1906,10 +1920,9 @@ class GameManager:
     def cli_print(self,str,source):
         # cli_print 过滤/控制格式
         if self.settings.cli_print.get(source,True) and str != self.pre_str:
-            info = not self.settings.cli_print.get('game_info',True)
-            if info and ('明杠' in str or '米可以' in str or '打出的' in str):
+            if ('明杠' in str or '米可以' in str or '打出的' in str):
                 print()
-            elif info and ('摸进' in str or '碰了' in str):
+            elif ('摸进' in str or '碰了' in str):
                 print()
             print(str)
             self.pre_str = str
